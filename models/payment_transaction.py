@@ -221,6 +221,7 @@ class PaymentTransaction(models.Model):
 
             return False
             # raise Warning(err_val)
+        _logger.info(response)
         return self._conekta_s2s_validate_tree(response)
 
     @api.model

@@ -20,6 +20,11 @@ try:
 except ImportError:
     phonenumbers = None
 
+try:
+    from .. import conekta
+except (ImportError, IOError) as err:
+    _logger.debug(err)
+
 
 class WebsiteSaleConekta(WebsiteSale):
     def checkout_form_validate(self, mode, all_form_values, data):
@@ -164,3 +169,37 @@ class Conekta(http.Controller):
         request.env['payment.transaction'].sudo()._handle_notification_data(
             'conekta', feedback_data
         )
+
+    @http.route('/payment/conekta/s2s/create_client', type='json', auth='public')
+    def create_conekta_customer(self, **kwargs):
+        partner = request.env.user.partner_id
+
+        provider_id = request.env['payment.provider'].browse(int(kwargs.get('provider_id')))
+
+        if partner.conekta_client_id:
+            return {
+                'id': partner
+            }
+
+        customer_data = {
+            'name': partner.name,
+            'email': partner.email,
+            'phone': partner.phone
+        }
+
+        conekta.api_key = provider_id.conekta_secret_key_test if provider_id.state == 'test' else provider_id.conekta_secret_key
+
+        try:
+            new_customer = conekta.Customer.create(customer_data)
+        except conekta.ConektaError as error:
+            err_val = ''
+            for err in error.error_json.get('details'):
+                err_val += err.get('message') + '\n'
+            _logger.info(err_val)
+
+            return False
+            # raise Warning(err_val)
+
+        _logger.info(new_customer)
+
+        return {}

@@ -53,12 +53,21 @@ odoo.define('payment_conekta_oxoo.payment_form' , require => {
             var formData = self.getFormData(inputsForm);
             var ds = $('input[name="data_set"]', providerForm)[0];
 
-            console.log(formData);
-
             var conektaSuccessResponseHandler = function(token) {
 
                 formData['conekta_token'] = token.id
-
+                console.log(formData, ds.dataset);
+                
+                if (formData['o_payment_save_as_token']) {
+                    self._rpc({
+                        route: '/payment/conekta/s2s/create_client',
+                        params: {'provider_id': providerID}
+                    }).then(function(response) {
+                        console.log(response);
+                        return response;
+                    });
+                }
+                
                 return self._rpc({
                     route: ds.dataset.createRoute,
                     params: formData,
