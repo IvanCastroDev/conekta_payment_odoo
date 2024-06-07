@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_report_payment_transaction" model="ir.actions.report">
+        <field name="name">Oxoo Payment receipt</field>
+        <field name="model">payment.transaction</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">payment_conekta_oxoo.report_payment_transaction</field>
+        <field name="report_file">payment_conekta_oxoo.report_payment_transaction</field>
+        <field name="binding_model_id" ref="payment.model_payment_transaction"/>
+        <field name="binding_type">report</field>
+        <field name="print_report_name">(object.conekta_oxxo_reference and '%s' % (object.conekta_oxxo_reference)) or '%s' % (object.reference)</field>
+    </record>
+
+    <record id="action_report_payment_transaction_spei" model="ir.actions.report">
+        <field name="name">SPEI Payment receipt</field>
+        <field name="model">payment.transaction</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">payment_conekta_oxoo.report_payment_transaction_spei</field>
+        <field name="report_file">payment_conekta_oxoo.report_payment_transaction_spei</field>
+        <field name="binding_model_id" ref="payment.model_payment_transaction"/>
+        <field name="binding_type">report</field>
+        <field name="print_report_name">(object.conekta_oxxo_reference and '%s' % (object.conekta_oxxo_reference)) or '%s' % (object.reference)</field>
+    </record>
+</odoo>

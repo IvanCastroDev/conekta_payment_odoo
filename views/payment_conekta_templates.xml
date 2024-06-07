@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="conekta_s2s_form">
+        <div class="o_authorize_form">
+            <input type="hidden" name="data_set" data-create-route="/payment/conekta/s2s/create_json_3ds"/>
+            <script src="https://conektaapi.s3.amazonaws.com/v0.3.2/js/conekta.js" type="text/javascript"/>
+            <input type="hidden" name="conekta_public_key"
+                   t-att-value="provider.conekta_publishable_key_test if provider.state=='test' else provider.conekta_publishable_key"/>
+            <script type="text/javascript">
+                Conekta.setPublicKey('<t t-out="provider.conekta_publishable_key_test if provider.state=='test' else provider.conekta_publishable_key"/>');
+            </script>
+            <div class="form-group">
+                <label t-attf-for="cc_number" class="col-form-label">Card Number</label>
+                <input type="text" name="cc_number" id="cc_number" class="form-control"
+                       placeholder="Card number" required="" maxlength="19"
+                       data-is-required="true"/>
+            </div>
+            <div class="row">
+                <div class="col-sm-4 form-group">
+                    <label t-attf-for="o_authorize_month_{{provider_id}}">Expiration</label>
+                    <div class="input-group">
+                        <input type="number" t-attf-id="o_authorize_month_{{provider_id}}" name="cc_expiry_mm"
+                               placeholder="MM"
+                               min="1" max="12" required="" class="form-control"/>
+                        <input type="number" t-attf-id="o_authorize_year_{{provider_id}}" placeholder="YY"
+                               name="cc_expiry_yy"
+                               min="00" max="99" required="" class="form-control"/>
+                    </div>
+                </div>
+                <div class="col-sm-3 form-group">
+                    <label t-attf-for="cvc">Card Code</label>
+                    <input type="number" name="cvc" id="cvc" class="form-control" max="999" placeholder="CVC"
+                           data-is-required="true"/>
+                </div>
+                <div class="col-sm-5 form-group">
+                    <label t-attf-for="cc_holder_name">Card Holder Name</label>
+                    <input type="text" name="cc_holder_name" id="cc_holder_name" class="form-control"
+                           placeholder="Cardholder name" data-is-required="true"/>
+                </div>
+            </div>
+            <input type="hidden" name="provider_id" t-att-value="provider_id"/>
+            <input t-if="return_url" type="hidden" name="return_url" t-att-value="return_url"/>
+            <input t-if="partner_id" type="hidden" name="partner_id" t-att-value="partner_id"/>
+            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+            <div class="clearfix"/>
+        </div>
+    </template>
+
+    <template id="conekta_oxxo_form">
+        <form t-att-action="api_url" method="post">
+            <input type="hidden" name="data_set" t-att-data-action-url="tx_url" data-remove-me=""/>
+            <t t-if="return_url">
+                <input type="hidden" name='return_url' t-att-value='return_url'/>
+            </t>
+            <input type="hidden" name='reference' t-att-value='reference'/>
+            <input type="hidden" name='amount' t-att-value='amount'/>
+            <input type="hidden" name='currency' t-att-value='currency.name'/>
+            <input name="name" t-att-value="name" type="hidden"/>
+            <input name="email" t-att-value="email" type="hidden"/>
+            <input name="phone" t-att-value="phone" type="hidden"/>
+        </form>
+    </template>
+
+    <template id="conekta_spei_form">
+        <form t-att-action="api_url" method="post">
+            <input type="hidden" name="data_set" t-att-data-action-url="tx_url" data-remove-me=""/>
+            <t t-if="return_url">
+                <input type="hidden" name='return_url' t-att-value='return_url'/>
+            </t>
+            <input type="hidden" name='reference' t-att-value='reference'/>
+            <input type="hidden" name='amount' t-att-value='amount'/>
+            <input type="hidden" name='currency' t-att-value='currency.name'/>
+            <input name="name" t-att-value="name" type="hidden"/>
+            <input name="email" t-att-value="email" type="hidden"/>
+            <input name="phone" t-att-value="phone" type="hidden"/>
+        </form>
+    </template>
+</odoo>

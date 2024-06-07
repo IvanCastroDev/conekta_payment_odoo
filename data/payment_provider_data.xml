@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="payment_acquirer_conekta" model="payment.provider">
+        <field name="name">Conekta</field>
+        <field name="image_128" type="base64" file="payment_conekta_oxoo/static/src/img/conekta.png"/>
+        <field name="code">conekta</field>
+        <field name="company_id" ref="base.main_company"/>
+        <field name="allow_tokenization">True</field>
+        <!--            <field name="redirect_form_view_id" ref="conekta_form"/>-->
+        <field name="inline_form_view_id" ref="conekta_s2s_form"/>
+        <field name="state">test</field>
+        <!--            <field name="payment_flow">s2s</field>-->
+        <field name="pre_msg">
+            <![CDATA[<p>You will be prompt with conekta Payment page for payment information.</p>]]></field>
+        <field name="conekta_secret_key">dummy</field>
+        <field name="conekta_publishable_key">dummy</field>
+        <field name="conekta_secret_key_test">dummy</field>
+        <field name="conekta_publishable_key_test">dummy</field>
+    </record>
+
+    <record id="payment_acquirer_conekta_oxxo" model="payment.provider">
+        <field name="name">Conekta Oxxo</field>
+        <field name="image_128" type="base64" file="payment_conekta_oxoo/static/src/img/conekta_oxxo_icon.png"/>
+        <field name="code">conekta_oxxo</field>
+        <field name="company_id" ref="base.main_company"/>
+        <field name="redirect_form_view_id" ref="conekta_oxxo_form"/>
+        <field name="state">test</field>
+        <field name="pre_msg">
+            <![CDATA[<p>More information will be provided after choosing the payment method.</p>]]></field>
+        <field name="conekta_secret_key">dummy</field>
+        <field name="conekta_publishable_key">dummy</field>
+        <field name="conekta_secret_key_test">dummy</field>
+        <field name="conekta_publishable_key_test">dummy</field>
+    </record>
+
+    <record id="payment_acquirer_conekta_spei" model="payment.provider">
+        <field name="name">Conekta SPEI</field>
+        <field name="image_128" type="base64" file="payment_conekta_oxoo/static/src/img/spei_brand.png"/>
+        <field name="code">conekta_spei</field>
+        <field name="company_id" ref="base.main_company"/>
+        <field name="redirect_form_view_id" ref="conekta_spei_form"/>
+        <field name="state">test</field>
+        <field name="pre_msg">
+            <![CDATA[<p>More information will be provided after choosing the payment method.</p>]]></field>
+        <field name="conekta_secret_key">dummy</field>
+        <field name="conekta_publishable_key">dummy</field>
+        <field name="conekta_secret_key_test">dummy</field>
+        <field name="conekta_publishable_key_test">dummy</field>
+    </record>
+
+    <record id="payment_method_conekta" model="account.payment.method">
+        <field name="name">Conekta</field>
+        <field name="code">conekta</field>
+        <field name="payment_type">inbound</field>
+    </record>
+
+    <record id="payment_method_conekta_oxxo" model="account.payment.method">
+        <field name="name">Conekta Oxxo</field>
+        <field name="code">conekta_oxxo</field>
+        <field name="payment_type">inbound</field>
+    </record>
+
+    <record id="payment_method_conekta_spei" model="account.payment.method">
+        <field name="name">Conekta SPEI</field>
+        <field name="code">conekta_spei</field>
+        <field name="payment_type">inbound</field>
+    </record>
+</odoo>
