@@ -49,12 +49,20 @@ class PaymentTransaction(models.Model):
         params['reference_id'] = self.reference
 
         if provider == 'conekta':
-            params['charges'] = [{
-                "payment_method": {
-                    "type": "card",
-                    "token_id": self.token_id and self.token_id.conekta_token or None
-                }
-            }]
+            if 'src' in self.token_id.conekta_token:
+                params['charges'] = [{
+                    "payment_method": {
+                        "type": "card",
+                        "payment_source_id": self.token_id and self.token_id.conekta_token or None
+                    }
+                }]
+            else:
+                params['charges'] = [{
+                    "payment_method": {
+                        "type": "card",
+                        "token_id": self.token_id and self.token_id.conekta_token or None
+                    }
+                }]
         elif provider == 'conekta_oxxo':
             params['charges'] = [{
                 "payment_method": {
@@ -298,8 +306,10 @@ class PaymentTransaction(models.Model):
         status = tree.payment_status
 
         payment_tokens = self.mapped('token_id')
-        """ if payment_tokens:
-            payment_tokens.sudo().write({'active': False, }) """
+
+        if payment_tokens and 'src' not in payment_tokens.provider_ref:
+            payment_tokens.sudo().write({'active': False, })
+
         if status == 'paid':
             # new_state = 'refunded' if self.state == 'refunding' else 'done'
             self.write({

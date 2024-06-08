@@ -197,32 +197,45 @@ class Conekta(http.Controller):
             _logger.info(new_payment_source)
 
             return {
-                'id': partner.conekta_client_id
+                'id': partner.conekta_client_id,
+                'card_id': new_payment_source.id
             }
 
         customer_data = {
             'name': partner.name,
             'email': partner.email,
-            'phone': partner.phone,
-            'payment_sources': [
-                {
-                    'type': 'card',
-                    'token_id': kwargs.get("tokenId", None)
-                }
-            ],
+            'phone': partner.phone
         }
 
         try:
             new_customer = conekta.Customer.create(customer_data)
+
+            partner.sudo().write({'conekta_client_id': new_customer.id})
+
+            customer_attributes = {
+                'payment_sources': {'data': []},
+                'shipping_contacts': {'data': []},
+                'id': new_customer.id
+            }
+            
+            customer = conekta.Customer(customer_attributes)
+
+            params = {
+                'type': 'card',
+                'token_id': kwargs.get("tokenId", None)
+            }
+
+            new_payment_source = customer.createPaymentSource(params)
         except conekta.ConektaError as error:
             err_val = ''
             for err in error.error_json.get('details'):
+                _logger.info(err)
                 err_val += err.get('message') + '\n'
             _logger.info(err_val)
 
             return False
 
-        partner.sudo().write({'conekta_client_id': new_customer.id})
-        sleep(1)
-
-        return {'id': new_customer.id}
+        return {
+            'id': new_customer.id,
+            'card_id': new_payment_source.id
+        }
