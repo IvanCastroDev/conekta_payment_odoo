@@ -9,11 +9,14 @@ import requests
 import urllib
 import time
 import platform
+import logging
 
 try:
     import json
 except ImportError:
     import simplejson as json
+
+_logger = logging.getLogger(__name__)
 
 API_VERSION = '2.0.0'
 

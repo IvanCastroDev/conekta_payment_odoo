@@ -56,15 +56,15 @@ odoo.define('payment_conekta_oxoo.payment_form' , require => {
             var conektaSuccessResponseHandler = function(token) {
 
                 formData['conekta_token'] = token.id
-                console.log(formData, ds.dataset);
+                var customerID = '';
                 
                 if (formData['o_payment_save_as_token']) {
                     self._rpc({
                         route: '/payment/conekta/s2s/create_client',
-                        params: {'provider_id': providerID}
+                        params: {'provider_id': providerID, 'tokenId': token.id}
                     }).then(function(response) {
                         console.log(response);
-                        return response;
+                        customerID = response.id;
                     });
                 }
                 
@@ -118,9 +118,44 @@ odoo.define('payment_conekta_oxoo.payment_form' , require => {
                         "cvc": formData.cvc,
                       }
                     };
-            Conekta.setPublicKey(formData.conekta_public_key);
-            Conekta.Token.create(tokenParams, conektaSuccessResponseHandler, conektaErrorResponseHandler);
 
+            /* Conekta.setPublicKey(formData.conekta_public_key);
+            Conekta.Token.create(tokenParams, conektaSuccessResponseHandler, conektaErrorResponseHandler); */
+
+            const options = {
+                backgroundMode: 'lightMode', //lightMode o darkMode
+                colorPrimary: '#081133', //botones y bordes
+                colorText: '#585987', // títulos
+                colorLabel: '#585987', // input labels
+                inputType: 'minimalMode', // minimalMode o flatMode
+                };
+
+            const config = {
+                locale: 'es',
+                publicKey: '{{yourKey}}',
+                targetIFrame: '#example',
+            };
+        
+            const callbacks = {
+                // Evento que permitirá saber que el token se creado de forma satisfactoria, es importante que se consuman los datos que de él derivan.
+                onCreateTokenSucceeded: function (token) {
+                    console.log('token', token);
+                },
+                // Evento que permitirá saber que el token se creado de manera incorrecta, es importante que se consuman los datos que de él derivan y se hagan las correciones pertinentes.
+                onCreateTokenError: function (error) {
+                    console.log(error);
+                },
+                // Evento que notifica cuando finalizó la carga del component/tokenizer
+                onGetInfoSuccess: function (loadingTime) {
+                    console.log('loading time en milisegundos', loadingTime.initLoadTime);
+                }
+            };
+            
+            window.ConektaCheckoutComponents.Card({
+                config,
+                callbacks,
+                options
+            });
         },
 
       async _processPayment(provider, paymentOptionId, flow) {

@@ -7,6 +7,7 @@ from odoo import http
 from odoo.http import request
 from odoo.exceptions import ValidationError
 from odoo import _
+from time import sleep
 
 
 from odoo.addons.portal.controllers.portal import CustomerPortal
@@ -176,18 +177,40 @@ class Conekta(http.Controller):
 
         provider_id = request.env['payment.provider'].browse(int(kwargs.get('provider_id')))
 
+        conekta.api_key = provider_id.conekta_secret_key_test if provider_id.state == 'test' else provider_id.conekta_secret_key
+
         if partner.conekta_client_id:
+            params = {
+                'type': 'card',
+                'token_id': kwargs.get("tokenId", None)
+            }
+
+            customer_attributes = {
+                'payment_sources': {'data': []},
+                'shipping_contacts': {'data': []},
+                'id': partner.conekta_client_id
+            }
+
+            customer = conekta.Customer(customer_attributes)
+            new_payment_source = customer.createPaymentSource(params)
+
+            _logger.info(new_payment_source)
+
             return {
-                'id': partner
+                'id': partner.conekta_client_id
             }
 
         customer_data = {
             'name': partner.name,
             'email': partner.email,
-            'phone': partner.phone
+            'phone': partner.phone,
+            'payment_sources': [
+                {
+                    'type': 'card',
+                    'token_id': kwargs.get("tokenId", None)
+                }
+            ],
         }
-
-        conekta.api_key = provider_id.conekta_secret_key_test if provider_id.state == 'test' else provider_id.conekta_secret_key
 
         try:
             new_customer = conekta.Customer.create(customer_data)
@@ -198,8 +221,8 @@ class Conekta(http.Controller):
             _logger.info(err_val)
 
             return False
-            # raise Warning(err_val)
 
-        _logger.info(new_customer)
+        partner.sudo().write({'conekta_client_id': new_customer.id})
+        sleep(1)
 
-        return {}
+        return {'id': new_customer.id}

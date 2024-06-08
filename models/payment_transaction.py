@@ -74,10 +74,16 @@ class PaymentTransaction(models.Model):
             # TODO: ADD expires_at
         partner_name = partner.name or self.partner_name or ''
         partner_email = partner.email or self.partner_email or ''
-        details = params['customer_info'] = {}
-        details['name'] = partner_name.replace('_', ' ')
-        details['phone'] = partner.phone or partner.mobile or ''
-        details['email'] = email_normalize(partner_email,False)
+
+        if self.partner_id.conekta_client_id:
+            params['customer_info'] = {
+                'customer_id': self.partner_id.conekta_client_id
+            }
+        else:
+            details = params['customer_info'] = {}
+            details['name'] = partner_name.replace('_', ' ')
+            details['phone'] = partner.phone or partner.mobile or ''
+            details['email'] = email_normalize(partner_email,False)
 
         line_items = params['line_items'] = []
         discount_lines = params['discount_lines'] = []
@@ -210,18 +216,19 @@ class PaymentTransaction(models.Model):
             self.token_id = notification_data.get('token_id')
         conekta.api_key = self.provider_id.conekta_secret_key_test if self.provider_id.state == 'test' else self.provider_id.conekta_secret_key
         params = self.create_params(self.provider_code)
+        _logger.info(params)
         try:
             response = conekta.Order.create(params)
         except conekta.ConektaError as error:
             err_val = ''
             for err in error.error_json.get('details'):
+                _logger.info(err)
                 err_val += err.get('message') + '\n'
             self._set_error(err_val)
             _logger.info(err_val)
 
             return False
             # raise Warning(err_val)
-        _logger.info(response)
         return self._conekta_s2s_validate_tree(response)
 
     @api.model
