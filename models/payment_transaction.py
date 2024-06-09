@@ -5,6 +5,7 @@ from datetime import datetime, timedelta
 from odoo import models, fields, api, _
 from odoo.addons.payment import utils as payment_utils
 from odoo.addons.payment.models.payment_provider import ValidationError
+from odoo.exceptions import UserError
 from odoo.tools import email_normalize
 
 _logger = logging.getLogger(__name__)
@@ -222,9 +223,10 @@ class PaymentTransaction(models.Model):
             return
         if self.provider_code == 'conekta' and notification_data.get('token_id'):
             self.token_id = notification_data.get('token_id')
+ 
         conekta.api_key = self.provider_id.conekta_secret_key_test if self.provider_id.state == 'test' else self.provider_id.conekta_secret_key
         params = self.create_params(self.provider_code)
-        _logger.info(params)
+
         try:
             response = conekta.Order.create(params)
         except conekta.ConektaError as error:
@@ -238,6 +240,25 @@ class PaymentTransaction(models.Model):
             return False
             # raise Warning(err_val)
         return self._conekta_s2s_validate_tree(response)
+    
+    def _send_payment_request(self):
+        super()._send_payment_request()
+        if self.provider_code != 'conekta':
+            return
+
+        if not self.token_id:
+            raise UserError("Conekta: " + _("The transaction is not linked to a token."))
+
+        _logger.info(
+            "payment request response for transaction with reference %s:",
+            self.reference
+        )
+        
+        feedback_data = {'reference': self.reference, 'token_id': self.token_id}
+
+        self._handle_notification_data(
+            'conekta', feedback_data
+        )
 
     @api.model
     def _conekta_form_get_tx_from_data(self, provider_code, notification_data):

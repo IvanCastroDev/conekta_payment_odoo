@@ -63,7 +63,6 @@ odoo.define('payment_conekta_oxoo.payment_form' , require => {
                         route: '/payment/conekta/s2s/create_client',
                         params: {'provider_id': providerID, 'tokenId': token.id}
                     }).then(function(response) {
-                        console.log(response);
                         customerID = response.id;
                         formData['conekta_token'] = response.card_id;
                     });
