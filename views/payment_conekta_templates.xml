@@ -37,6 +37,9 @@
                     <input type="text" name="cc_holder_name" id="cc_holder_name" class="form-control"
                            placeholder="Cardholder name" data-is-required="true"/>
                 </div>
+                <t t-if="is_subscription">
+                    <input class='d-none' name="o_payment_save_as_token" type="checkbox" checked='True'/>
+                </t>
             </div>
             <input type="hidden" name="provider_id" t-att-value="provider_id"/>
             <input t-if="return_url" type="hidden" name="return_url" t-att-value="return_url"/>
