@@ -29,6 +29,7 @@
             "payment_conekta_oxoo/static/src/scss/style.scss",
             "payment_conekta_oxoo/static/src/js/payment_form.js",
             "payment_conekta_oxoo/static/src/js/post_processing.js",
+            "payment_conekta_oxoo/static/src/js/browse_error.js",
         ],
     },
     # only loaded in demonstration mode

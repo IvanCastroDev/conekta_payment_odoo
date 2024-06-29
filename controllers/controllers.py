@@ -175,7 +175,7 @@ class Conekta(http.Controller):
     def create_conekta_customer(self, **kwargs):
         partner = request.env.user.partner_id
 
-        provider_id = request.env['payment.provider'].browse(int(kwargs.get('provider_id')))
+        provider_id = request.env['payment.provider'].sudo().browse(int(kwargs.get('provider_id')))
 
         conekta.api_key = provider_id.conekta_secret_key_test if provider_id.state == 'test' else provider_id.conekta_secret_key
 
