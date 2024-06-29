@@ -97,13 +97,16 @@ class PaymentTransaction(models.Model):
         line_items = params['line_items'] = []
         discount_lines = params['discount_lines'] = []
         tax_lines = {}
+        is_subscription = False
         if hasattr(self, 'sale_order_ids'):
             total_amount = 0
             total_amount_untaxed = 0
             for order in self.sale_order_ids:
+                is_subscription = True if order.is_subscription else False
                 total_amount += order.amount_total
                 total_amount_untaxed += order.amount_untaxed
                 for line in order.order_line:
+                    _logger.info(f"line: {line}")
                     price_reduce = line.price_unit * (1.0 - line.discount / 100.0)
                     if line.tax_id:
                         res = line.tax_id.compute_all(price_reduce, quantity=line.product_uom_qty,
@@ -138,11 +141,12 @@ class PaymentTransaction(models.Model):
             # If price include taxes, than Amount need to pass untaxed amount
             if self.amount == total_amount and tax_lines:
                 params['amount'] = int(total_amount_untaxed)
-        if hasattr(self, 'invoice_ids'):
+        if hasattr(self, 'invoice_ids') and not is_subscription:
             total_amount_invoice = 0
             total_amount_untaxed_invoice = 0
 
             for invoice in self.invoice_ids:
+                _logger.info(f"Invoice: {invoice}")
                 total_amount_invoice += invoice.amount_total
                 total_amount_untaxed_invoice += invoice.amount_untaxed
                 for line in invoice.invoice_line_ids:
